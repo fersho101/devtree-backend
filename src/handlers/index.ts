@@ -6,13 +6,6 @@ import { checkPassword, hashPassword } from '../utils/auth'
 
 export const createAccount = async (req: Request, res) => {
 
-    //Manejo de errores
-    let errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() })
-    }
-
-
     const { email, password } = req.body
 
     const userExists = await User.findOne({ email })
@@ -45,21 +38,21 @@ export const login = async (req: Request, res) => {
     }
 
     const { email, password } = req.body
-    
+
     //Revisar si el usuario esta registrado
     const user = await User.findOne({ email })
     if (!user) {
         const error = new Error('El usuario no existe')
         return res.status(404).json({ error: error.message })
     }
-    
+
     //Comprobar password
     const isPasswordCorrect = await checkPassword(password, user.password)
     if (!isPasswordCorrect) {
         const error = new Error('Password incorrecto')
         return res.status(401).json({ error: error.message })
     }
-    
+
     res.send('Autenticado....')
 
 }
