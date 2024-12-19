@@ -1,11 +1,11 @@
 import { Request, Response } from 'express'
 import { validationResult } from 'express-validator'
 import slug from 'slug'
-import User from "../models/User"
+import User from '../models/User'
 import { checkPassword, hashPassword } from '../utils/auth'
+import { generateJWT } from '../utils/jwt'
 
 export const createAccount = async (req: Request, res) => {
-
     const { email, password } = req.body
 
     const userExists = await User.findOne({ email })
@@ -21,7 +21,7 @@ export const createAccount = async (req: Request, res) => {
         return res.status(409).json({ error: error.message })
     }
 
-    // await User.create(req.body) //Otra opcion    
+    // await User.create(req.body) //Otra opcion
     const user = new User(req.body)
     user.password = await hashPassword(password)
     user.handle = handle
@@ -53,6 +53,7 @@ export const login = async (req: Request, res) => {
         return res.status(401).json({ error: error.message })
     }
 
-    res.send('Autenticado....')
+    const token = generateJWT({id:user._id})
 
+    res.send(token)
 }
